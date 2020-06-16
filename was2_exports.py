@@ -6,19 +6,13 @@ from datetime import datetime
 
 
 # globals
- 
 
-
-tio_AK="7b5--your key here--5ad7c9ad75e35cf7"
-tio_SK="eb0--your key here--8fe4c8907531"
-
-api_keys="accessKey="+tio_AK+";secretKey="+tio_SK
-
-headers = {
-    'accept': "application/json",
-    'content-type': "application/json",
-    'X-APIKeys': api_keys
-    }
+def read_keys():
+    fileDir = os.path.dirname(os.path.realpath('__file__'))
+    print(fileDir)
+    f=open("../keys.json","r")
+    keys=json.load(f)
+    return keys
 
 # sub routines
 
@@ -39,7 +33,7 @@ def check_workbench(id):
 	url = "https://cloud.tenable.com/scans/"+id+"/export/"+mystring+"/status"
 	querystring={"type":"web-app"}
 	response = requests.request("GET", url, headers=headers, params=querystring)
-	decoded = json.loads(response.text)	
+	decoded = json.loads(response.text)
 	try:
 		return decoded['status']
 	except:
@@ -66,7 +60,7 @@ def getit(scanID):
 			print("download complete")
 		elif status=="error":
 			ready=100
-			print "check status job returned error"
+			print("check status job returned error")
 		time.sleep(5)
 
 
@@ -79,12 +73,12 @@ def getscandetails(id):
 	targets=decoded['info']['targets']
 	if targets is None:
 		return "skip" #these are imported web scans. No real interest
-	history_id=decoded['history'][0]['history_id']	        
-	history_uuid=decoded['history'][0]['uuid']	        
-	timestamp=decoded['history'][0]['creation_date']	        
+	history_id=decoded['history'][0]['history_id']
+	history_uuid=decoded['history'][0]['uuid']
+	timestamp=decoded['history'][0]['creation_date']
 	scan_date=datetime.utcfromtimestamp(int(decoded['history'][0]['creation_date'])).strftime('%Y-%m-%d %H:%M:%S')
 	results_file=id+"_webapp_export.csv"
-	print id, owner, name, scan_date, targets, results_file
+	print(id, owner, name, scan_date, targets, results_file)
 	mystring=id.encode('utf8')+"|"+owner.encode('utf8')+"|"+name.encode('utf8')+"|"+scan_date.encode('utf8')+"|"+targets.encode('utf8')+"|"+results_file.encode('utf8')+"|"
 	return mystring
 
@@ -105,7 +99,7 @@ def getscans():
 			mystring=getscandetails(scanID)
 			# print mystring
 			if (mystring!="skip"):
-				print mystring
+				print(mystring)
 				f.write(mystring+"\n")
 				lst.append(mystring)
 	return lst
@@ -138,43 +132,44 @@ def getscans_was2():
 			audited=str(x['metadata']['audited_pages'])
 			request_count=str(x['metadata']['request_count'])
 		if status=="completed":
-			print scanID, target, status
+			print(scanID, target, status)
 			lst.append({"scanID":scanID,"userID":userID,"target":target,"status":status,"finalised":finalised,"scan_name":scan_name,"crawled":crawled,"audited":audited,"request_count":request_count})
 	json_dump=json.dumps(lst)
 	f.write(json_dump)
 	f.close()
 	return lst
-		
+
 def get_scanname(configID):
 	url = "https://cloud.tenable.com/was/v2/configs/"+configID
 	response = requests.request("GET", url, headers=headers)
 	decoded = json.loads(response.text)
 	scan_name="Unkown"
-	if decoded.has_key("name"):
+	if "name" in decoded:
 		scan_name=decoded["name"]
 	return scan_name
 
+
 def get_vulns(scanid):
-  myfile=results_dir+str(scanid)+".json"
-  if not os.path.isfile(myfile): #only get new scan results
-	print("Getting vulns for scan_uuid = "+scanid)
-	url = "https://cloud.tenable.com/was/v2/scans/"+scanid+"/vulnerabilities"
-	querystring = {"ordering":"asc","page":"0","size":"10"}
-	response = requests.request("GET", url, headers=headers, params=querystring)
-	decoded = json.loads(response.text)
-	num_vulns = decoded["total_size"]
-	querystring = {"ordering":"asc","page":"0","size":num_vulns}
-	response = requests.request("GET", url, headers=headers, params=querystring)
-	decoded = json.loads(response.text)
-	dict_lst=[]
-	for x in decoded["data"]:
-		dict_lst.append(x)
-		pluginID=x["plugin_id"]
-		get_plugin_details(pluginID)
-	f=open(results_dir+scanid+".json","w+")
-	json_dump=json.dumps(dict_lst)
-	f.write(json_dump)
-	f.close()
+    myfile=results_dir+str(scanid)+".json"
+    if not os.path.isfile(myfile): #only get new scan results
+    	print("Getting vulns for scan_uuid = "+scanid)
+    	url = "https://cloud.tenable.com/was/v2/scans/"+scanid+"/vulnerabilities"
+    	querystring = {"ordering":"asc","page":"0","size":"10"}
+    	response = requests.request("GET", url, headers=headers, params=querystring)
+    	decoded = json.loads(response.text)
+    	num_vulns = decoded["total_size"]
+    	querystring = {"ordering":"asc","page":"0","size":num_vulns}
+    	response = requests.request("GET", url, headers=headers, params=querystring)
+    	decoded = json.loads(response.text)
+    	dict_lst=[]
+    	for x in decoded["data"]:
+    		dict_lst.append(x)
+    		pluginID=x["plugin_id"]
+    		get_plugin_details(pluginID)
+    	f=open(results_dir+scanid+".json","w+")
+    	json_dump=json.dumps(dict_lst)
+    	f.write(json_dump)
+    	f.close()
 
 def get_plugin_details(pluginid):
 	myfile=results_dir+str(pluginid)+".json"
@@ -190,20 +185,32 @@ def get_plugin_details(pluginid):
 
 
 def get_report(scanid):
-  myfile=results_dir+"report_"+str(scanid)+".json"
-  if not os.path.isfile(myfile): #only get new scan results
-	print("Getting report for scan_uuid = "+scanid)
-	url = "https://cloud.tenable.com/was/v2/scans/"+scanid+"/report"
-	response = requests.request("GET", url, headers=headers)
-	decoded = json.loads(response.text)
-	f=open(myfile,"w+")
-	json_dump=json.dumps(decoded)
-	f.write(json_dump)
-	f.close()
+    myfile=results_dir+"report_"+str(scanid)+".json"
+    if not os.path.isfile(myfile): #only get new scan results
+    	print("Getting report for scan_uuid = "+scanid)
+    	url = "https://cloud.tenable.com/was/v2/scans/"+scanid+"/report"
+    	response = requests.request("GET", url, headers=headers)
+    	decoded = json.loads(response.text)
+    	f=open(myfile,"w+")
+    	json_dump=json.dumps(decoded)
+    	f.write(json_dump)
+    	f.close()
 
 
 # main program
-results_dir="results/"
+keys=read_keys()
+tio_AK=keys["tio_AK"]
+tio_SK=keys["tio_SK"]
+
+api_keys="accessKey="+tio_AK+";secretKey="+tio_SK
+
+headers = {
+    'accept': "application/json",
+    'content-type': "application/json",
+    'X-APIKeys': api_keys
+    }
+
+results_dir="../results/"
 
 scan_lst=getscans_was2()
 

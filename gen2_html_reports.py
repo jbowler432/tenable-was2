@@ -183,7 +183,7 @@ def clean_string(mystr):
 	return_str=mystr.replace("<","&lt;")
 	return_str=return_str.replace(">","&gt;")
 	return_str=return_str.replace("\n","<br>")
-	return return_str.encode('utf-8')
+	return return_str
 
 def get_severity(pluginid):
 	fin=open(results_dir+str(pluginid)+".json","r")
@@ -232,7 +232,7 @@ def print_plugin_data(pluginid,fout):
 	fout.write("<tr><td>&nbsp;</td>\n")
 	fout.write("<tr><td><b>Description</b></td>\n")
 	fout.write("<tr><td>"+clean_string(data["description"])+"</td>\n")
-	if data.has_key("solution"):
+	if "solution" in data:
 		if data["solution"] is not None:
 			fout.write("<tr><td>&nbsp;</td>\n")
 			fout.write("<tr><td><b>Solution</b></td>\n")
@@ -251,7 +251,7 @@ def print_plugin_data2(data,fout):
 	fout.write("<tr><td>&nbsp;</td>\n")
 	fout.write("<tr><td><b>Description</b></td>\n")
 	fout.write("<tr><td>"+clean_string(data["description"])+"</td>\n")
-	if data.has_key("solution"):
+	if "solution" in data:
 		if data["solution"] is not None:
 			fout.write("<tr><td>&nbsp;</td>\n")
 			fout.write("<tr><td><b>Solution</b></td>\n")
@@ -271,20 +271,20 @@ def plug_counts_detailed(scanid,fout,severity):
 	fin.close()
 	plug_counts={}
 	plug_uris={}
-	
+
 	for x in data:
 		pluginID=str(x["plugin_id"])
 		uri=str(x["uri"])
 		vuln_id=x["vuln_id"]
 		risk=get_severity(pluginID)
 		if risk==severity:
-			if plug_counts.has_key(pluginID):
+			if pluginID in plug_counts:
 				current_count=plug_counts[pluginID]
 				new_count=current_count+1
 				plug_counts.update({pluginID:new_count})
 			else:
 				plug_counts.update({pluginID:1})
-			if plug_uris.has_key(pluginID):
+			if pluginID in plug_uris:
 				if uri is not None:
 					lst=plug_uris[pluginID]
 					mystring="<a href='#"+vuln_id+"'>"+uri+"</a>"
@@ -335,13 +335,13 @@ def plug_counts_detailed2(data,fout,severity):
 		plug_details.append({"pluginID":pluginID,"name":name,"family":family,"risk":risk,"synopsis":synopsis,"see_also":see_also,"output":output,"solution":solution,"description":description})
 		vuln_id=str(count) # need to make up our own ID as its not in the json report export
 		if risk==severity:
-			if plug_counts.has_key(pluginID):
+			if pluginID in plug_counts:
 				current_count=plug_counts[pluginID]
 				new_count=current_count+1
 				plug_counts.update({pluginID:new_count})
 			else:
 				plug_counts.update({pluginID:1})
-			if plug_uris.has_key(pluginID):
+			if pluginID in plug_uris:
 				if uri is not None:
 					lst=plug_uris[pluginID]
 					mystring="<a href='#"+vuln_id+"'>"+uri+"</a>"
@@ -404,13 +404,13 @@ def plug_outputs(data,fout,severity):
 		plug_details.append({"pluginID":pluginID,"name":name,"family":family,"risk":risk,"synopsis":synopsis,"see_also":see_also,"output":output,"solution":solution,"description":description})
 		vuln_id=str(count) # need to make up our own ID as its not in the json report export
 		if risk==severity:
-			if plug_counts.has_key(pluginID):
+			if pluginID in plug_counts:
 				current_count=plug_counts[pluginID]
 				new_count=current_count+1
 				plug_counts.update({pluginID:new_count})
 			else:
 				plug_counts.update({pluginID:1})
-			if plug_uris.has_key(pluginID):
+			if pluginID in plug_uris:
 				if uri is not None:
 					lst=plug_uris[pluginID]
 					sublst=[]
@@ -469,19 +469,19 @@ def plug_counts(scanid,fout,severity):
 	fin.close()
 	plug_counts={}
 	plug_uris={}
-	
+
 	for x in data:
 		pluginID=str(x["plugin_id"])
 		uri=str(x["uri"])
 		risk=get_severity(pluginID)
 		if risk==severity:
-			if plug_counts.has_key(pluginID):
+			if pluginID in plug_counts:
 				current_count=plug_counts[pluginID]
 				new_count=current_count+1
 				plug_counts.update({pluginID:new_count})
 			else:
 				plug_counts.update({pluginID:1})
-			if plug_uris.has_key(pluginID):
+			if pluginID in plug_uris:
 				if uri is not None:
 					lst=plug_uris[pluginID]
 					lst.append(uri)
@@ -516,13 +516,13 @@ def plug_counts2(data,fout,severity):
 		family=x["family"]
 		plug_details.append({"pluginID":pluginID,"name":name,"family":family,"risk":risk})
 		if risk==severity:
-			if plug_counts.has_key(pluginID):
+			if pluginID in plug_counts:
 				current_count=plug_counts[pluginID]
 				new_count=current_count+1
 				plug_counts.update({pluginID:new_count})
 			else:
 				plug_counts.update({pluginID:1})
-			if plug_uris.has_key(pluginID):
+			if pluginID in plug_uris:
 				if uri is not None:
 					lst=plug_uris[pluginID]
 					lst.append(uri)
@@ -555,38 +555,38 @@ def print_vulns(scanid,fout,severity):
 	data=json.load(fin)
 	fin.close()
 	for x in data:
-	   vuln_id=x["vuln_id"]
-	   plugin_id=x["plugin_id"]
-	   risk=get_severity(plugin_id)
-	   name=get_name(plugin_id)
-	   if risk==severity:
-		uri=x["uri"]
-		details=x["details"]
-		attachments=x["attachments"]
-		fout.write('<div class=bar_chart_fl id='+vuln_id+'>\n')
-		fout.write('<table width=900px>\n')
-		fout.write('<tr><td width=70px><b>'+str(plugin_id)+'</b></td><td class='+severity+' width=100px>'+severity+'</td><td width=20px>&nbsp;</td><td>'+uri+'</td>\n')
-		fout.write('<tr><td colspan=4>'+name+'</td>\n')
-		fout.write('</table>\n')
-		if details.has_key("output"):
-			fout.write('<table>\n')
-			fout.write("<tr><td>&nbsp;</td>\n")
-			fout.write('<tr><td><b>Plugin Output</b></td>\n')
+		vuln_id=x["vuln_id"]
+		plugin_id=x["plugin_id"]
+		risk=get_severity(plugin_id)
+		name=get_name(plugin_id)
+		if risk==severity:
+			uri=x["uri"]
+			details=x["details"]
+			attachments=x["attachments"]
+			fout.write('<div class=bar_chart_fl id='+vuln_id+'>\n')
+			fout.write('<table width=900px>\n')
+			fout.write('<tr><td width=70px><b>'+str(plugin_id)+'</b></td><td class='+severity+' width=100px>'+severity+'</td><td width=20px>&nbsp;</td><td>'+uri+'</td>\n')
+			fout.write('<tr><td colspan=4>'+name+'</td>\n')
 			fout.write('</table>\n')
-			fout.write('<table width=600px>\n')
-			fout.write('<tr><td class=plugout><pre>'+clean_string(details["output"])+"</pre></td>\n")
-			fout.write('</table>')
-		if details.has_key("proof"):
-			fout.write('<table>\n')
-			fout.write("<tr><td>&nbsp;</td>\n")
-			fout.write('<tr><td><b>Proof</b></td>\n')
-			fout.write('</table>\n')
-			fout.write('<table width=600px>\n')
-			fout.write('<tr><td class=plugout><pre>'+clean_string(details["proof"])+"</pre></td>\n")
-			fout.write('</table>')
-		fout.write('</div>')
-		fout.write('<table width=100%></table>')
-	
+			if "output" in details:
+				fout.write('<table>\n')
+				fout.write("<tr><td>&nbsp;</td>\n")
+				fout.write('<tr><td><b>Plugin Output</b></td>\n')
+				fout.write('</table>\n')
+				fout.write('<table width=600px>\n')
+				fout.write('<tr><td class=plugout><pre>'+clean_string(details["output"])+"</pre></td>\n")
+				fout.write('</table>')
+			if "proof" in details:
+				fout.write('<table>\n')
+				fout.write("<tr><td>&nbsp;</td>\n")
+				fout.write('<tr><td><b>Proof</b></td>\n')
+				fout.write('</table>\n')
+				fout.write('<table width=600px>\n')
+				fout.write('<tr><td class=plugout><pre>'+clean_string(details["proof"])+"</pre></td>\n")
+				fout.write('</table>')
+			fout.write('</div>')
+			fout.write('<table width=100%></table>')
+
 
 def print_summary(scanid,fout):
 	fin=open(results_dir+scanid+".json","r")
@@ -782,8 +782,8 @@ def print_report2(x):
 # Main
 #
 input_dir="./"
-results_dir="results/"
-reports_dir="reports/"
+results_dir="../results/"
+reports_dir="../reports/"
 #reports_dir="/mnt/downloads/"
 f=open(results_dir+"scan_list.json","r")
 scan_lst=json.load(f)
@@ -793,7 +793,7 @@ for x in scan_lst:
 	uri=x["target"]
 	finalised=x["finalised"]
 	scan_name=x["scan_name"]
-	print scanID, uri, finalised, scan_name
+	print(scanID, uri, finalised, scan_name)
 	# older method off original APIs
 	#print_report(x)
 	# newer method off report API
