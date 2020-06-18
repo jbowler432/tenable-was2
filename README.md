@@ -1,5 +1,7 @@
 # tenable-was2
 ```
+Generates html reports for was2 scans from tenable.io using the json exports
+
 run with
 
 python3 was2_exports.py
