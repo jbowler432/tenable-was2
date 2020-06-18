@@ -161,14 +161,14 @@ def write_html_header(f):
 	f.write(html_header)
 	#
 	# readin style sheet
-	f2=open(input_dir+"style.css","r")
+	f2=open("style.css","r")
 	for line in f2:
 		f.write(line)
 	f2.close()
 	f.write('<script>\n')
 	#
 	# read in javascrip file for producing graphs
-	f2=open(input_dir+"Chart.min.js","r")
+	f2=open("Chart.min.js","r")
 	for line in f2:
 		f.write(line)
 	f2.close()
@@ -781,7 +781,6 @@ def print_report2(x):
 #
 # Main
 #
-input_dir="./"
 results_dir="../results/"
 reports_dir="../reports/"
 #reports_dir="/mnt/downloads/"

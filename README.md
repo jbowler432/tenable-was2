@@ -5,10 +5,13 @@ run with
 python3 was2_exports.py
 python3 gen2_html_reports.py
 
-Expects directories results, reports to exist at parent level to where
-you have cloned this code. They are referenced like "../results/" in the
-
-keys should be placed in a file called keys.json that also exists in the parent
-directory. It is referenced like "../keys.json". Format of file is
+Keys should be placed in a file called keys.json. Format of file is
 {"tio_AK":"your access key","tio_SK":"your secret key"}
+
+Directory location for the keys file is controlled by the variable keys_dir
+
+Raw json dump results will be written to the directory results_dir
+
+html reports will be written to the directory reports_dir
+
 ```

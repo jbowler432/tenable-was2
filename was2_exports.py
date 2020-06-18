@@ -10,7 +10,7 @@ from datetime import datetime
 def read_keys():
     fileDir = os.path.dirname(os.path.realpath('__file__'))
     print(fileDir)
-    f=open("../keys.json","r")
+    f=open(keys_dir+"keys.json","r")
     keys=json.load(f)
     return keys
 
@@ -198,6 +198,9 @@ def get_report(scanid):
 
 
 # main program
+results_dir="../results/"
+keys_dir="../"
+
 keys=read_keys()
 tio_AK=keys["tio_AK"]
 tio_SK=keys["tio_SK"]
@@ -210,7 +213,6 @@ headers = {
     'X-APIKeys': api_keys
     }
 
-results_dir="../results/"
 
 scan_lst=getscans_was2()
 
