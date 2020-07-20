@@ -105,39 +105,42 @@ def getscans():
 	return lst
 
 def getscans_was2():
-	url = "https://cloud.tenable.com/was/v2/scans"
-	querystring = {"ordering":"asc","page":"0","size":"10"}
-	response = requests.request("GET", url, headers=headers, params=querystring)
-	decoded = json.loads(response.text)
-	num_vulns = decoded["total_size"]
-	querystring = {"ordering":"asc","page":"0","size":num_vulns}
-	response = requests.request("GET", url, headers=headers, params=querystring)
-	decoded = json.loads(response.text)
-	f = open(results_dir+"scan_list.json","w")
-	lst=[]
-	for x in decoded['data']:
-		scanID=str(x['scan_id'])
-		userID=str(x['user_id'])
-		target=str(x['application_uri'])
-		status=str(x['status'])
-		finalised=str(x['finalized_at'])
-		configID=str(x['config_id'])
-		scan_name=get_scanname(configID)
-		time.sleep(1)
-		crawled="N/A"
-		audited="N/A"
-		request_count="N/A"
-		if x['metadata'] is not None:
-			crawled=str(x['metadata']['crawled_urls'])
-			audited=str(x['metadata']['audited_pages'])
-			request_count=str(x['metadata']['request_count'])
-		if status=="completed":
-			print(scanID, target, status)
-			lst.append({"scanID":scanID,"userID":userID,"target":target,"status":status,"finalised":finalised,"scan_name":scan_name,"crawled":crawled,"audited":audited,"request_count":request_count})
-	json_dump=json.dumps(lst)
-	f.write(json_dump)
-	f.close()
-	return lst
+    url = "https://cloud.tenable.com/was/v2/scans"
+    querystring = {"ordering":"asc","page":"0","size":"10"}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    decoded = json.loads(response.text)
+    num_vulns = decoded["total_size"]
+    querystring = {"ordering":"asc","page":"0","size":num_vulns}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    decoded = json.loads(response.text)
+    f = open(results_dir+"scan_list.json","w")
+    lst=[]
+    for x in decoded['data']:
+        scanID=str(x['scan_id'])
+        userID=str(x['user_id'])
+        target=str(x['application_uri'])
+        status=str(x['status'])
+        finalised=str(x['finalized_at'])
+        configID=str(x['config_id'])
+        scan_name=get_scanname(configID)
+        time.sleep(1)
+        crawled="N/A"
+        audited="N/A"
+        request_count="N/A"
+        if x['metadata'] is not None:
+            if "crawled_urls" in x['metadata']:
+                crawled=str(x['metadata']['crawled_urls'])
+            if "audited_pages" in x['metadata']:
+                audited=str(x['metadata']['audited_pages'])
+            if "request_count" in x['metadata']:
+                request_count=str(x['metadata']['request_count'])
+        if status=="completed":
+            print(scanID, target, status)
+            lst.append({"scanID":scanID,"userID":userID,"target":target,"status":status,"finalised":finalised,"scan_name":scan_name,"crawled":crawled,"audited":audited,"request_count":request_count})
+    json_dump=json.dumps(lst)
+    f.write(json_dump)
+    f.close()
+    return lst
 
 def get_scanname(configID):
 	url = "https://cloud.tenable.com/was/v2/configs/"+configID
