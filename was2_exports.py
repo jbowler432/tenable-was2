@@ -127,7 +127,7 @@ def getscans_was2():
         crawled="N/A"
         audited="N/A"
         request_count="N/A"
-        if 'metadata' in x:
+        if x['metadata'] is not None:
             if "crawled_urls" in x['metadata']:
                 crawled=str(x['metadata']['crawled_urls'])
             if "audited_pages" in x['metadata']:
