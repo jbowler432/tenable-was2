@@ -1,6 +1,8 @@
 # tenable-was2
 ```
-Generates html reports for was2 scans from tenable.io using the json exports
+*** This tool is not an officially supported Tenable project ***
+
+Generates html reports for was2 scans from tenable.io using the json export APIs.
 
 run with
 
