@@ -199,6 +199,28 @@ def get_report(scanid):
     	f.write(json_dump)
     	f.close()
 
+def getscanconfigs():
+    url = "https://cloud.tenable.com/was/v2/configs/search"
+    querystring = {"limit":"200","offset":"0"}
+    response = requests.request("POST", url, headers=headers, params=querystring)
+    decoded = json.loads(response.text)
+    total_size=decoded["total_size"]
+    scan_lst=[]
+    for x in decoded["data"]:
+        target=x["target"]
+        config_id=x["config_id"]
+        #print(target,config_id)
+        if x["last_scan"] is not None:
+            last_scan=x["last_scan"]
+            scan_id=last_scan["scan_id"]
+            started_at=last_scan["started_at"]
+            status=last_scan["status"]
+            if status=="completed":
+                #print(target,scan_id,started_at,status)
+                scan_dct={"scan_id":scan_id,"target":target,"started_at":started_at}
+                scan_lst.append(scan_dct)
+    return scan_lst
+
 
 # main program
 results_dir="../results/"
@@ -217,14 +239,14 @@ headers = {
     }
 
 
-scan_lst=getscans_was2()
-
+scan_lst=getscanconfigs()
 
 for x in scan_lst:
-	scanID=x["scanID"]
-	print("scanID = "+scanID)
-	# get_vulns is the old method written before the json export was available
-	#get_vulns(scanID)
-	# new method based on json report extract
-	get_report(scanID)
-	time.sleep(1)
+    scan_id=x["scan_id"]
+    target=x["target"]
+    print("scan_id = "+scan_id,"target = "+target)
+    # get_vulns is the old method written before the json export was available
+    #get_vulns(scanID)
+    # new method based on json report extract
+    get_report(scan_id)
+    time.sleep(1)
