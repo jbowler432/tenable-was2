@@ -211,14 +211,32 @@ def getscanconfigs():
         config_id=x["config_id"]
         #print(target,config_id)
         if x["last_scan"] is not None:
-            last_scan=x["last_scan"]
-            scan_id=last_scan["scan_id"]
-            started_at=last_scan["started_at"]
-            status=last_scan["status"]
+            ls=x["last_scan"]
+            scanID=ls["scan_id"]
+            started_at=ls["started_at"]
+            status=ls["status"]
+            userID=ls["user_id"]
+            finalised=ls["finalized_at"]
+            scan_name=x["name"]
+            crawled="N/A"
+            audited="N/A"
+            request_count="N/A"
+            #print(x)
             if status=="completed":
                 #print(target,scan_id,started_at,status)
-                scan_dct={"scan_id":scan_id,"target":target,"started_at":started_at}
+                if ls['metadata'] is not None:
+                    if "crawled_urls" in ls['metadata']:
+                        crawled=str(ls['metadata']['crawled_urls'])
+                    if "audited_pages" in ls['metadata']:
+                        audited=str(ls['metadata']['audited_pages'])
+                    if "request_count" in ls['metadata']:
+                        request_count=str(ls['metadata']['request_count'])
+                scan_dct={"scanID":scanID,"userID":userID,"target":target,"status":status,"finalised":finalised,"scan_name":scan_name,"crawled":crawled,"audited":audited,"request_count":request_count}
                 scan_lst.append(scan_dct)
+    f = open(results_dir+"scan_list.json","w")
+    json_dump=json.dumps(scan_lst)
+    f.write(json_dump)
+    f.close()
     return scan_lst
 
 
@@ -242,7 +260,7 @@ headers = {
 scan_lst=getscanconfigs()
 
 for x in scan_lst:
-    scan_id=x["scan_id"]
+    scan_id=x["scanID"]
     target=x["target"]
     print("scan_id = "+scan_id,"target = "+target)
     # get_vulns is the old method written before the json export was available
