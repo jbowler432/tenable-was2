@@ -204,9 +204,10 @@ def getscanconfigs():
     querystring = {"limit":"200","offset":"0"}
     response = requests.request("POST", url, headers=headers, params=querystring)
     decoded = json.loads(response.text)
-    total_size=decoded["total_size"]
+    print(decoded)
+    #total_size=decoded["total_size"]
     scan_lst=[]
-    for x in decoded["data"]:
+    for x in decoded["items"]:
         target=x["target"]
         config_id=x["config_id"]
         #print(target,config_id)
