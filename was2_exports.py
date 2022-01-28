@@ -204,7 +204,7 @@ def getscanconfigs():
     querystring = {"limit":"200","offset":"0"}
     response = requests.request("POST", url, headers=headers, params=querystring)
     decoded = json.loads(response.text)
-    print(decoded)
+    #print(decoded)
     #total_size=decoded["total_size"]
     scan_lst=[]
     for x in decoded["items"]:
