@@ -7,12 +7,13 @@ from datetime import datetime
 
 # globals
 
-def read_keys(fname):
-    fileDir = os.path.dirname(os.path.realpath('__file__'))
-    print(fileDir)
-    f=open(fname,"r")
-    keys=json.load(f)
-    return keys
+def read_keys(keys_file,instance):
+	f=open(keys_file,"r")
+	keys=json.load(f)
+	tio_AK=keys[instance]["tio_AK"]
+	tio_SK=keys[instance]["tio_SK"]
+	api_keys="accessKey="+tio_AK+";secretKey="+tio_SK
+	return api_keys
 
 # sub routines
 
@@ -242,14 +243,11 @@ def getscanconfigs():
 
 
 # main program
-results_dir="../results/"
+results_dir="results/"
 keys_dir="../"
+key_file=keys_dir+"io_keys.json"
 
-keys=read_keys(keys_dir+"keys.json")
-tio_AK=keys["tio_AK"]
-tio_SK=keys["tio_SK"]
-
-api_keys="accessKey="+tio_AK+";secretKey="+tio_SK
+api_keys=read_keys(key_file,"sandbox")
 
 headers = {
     'accept': "application/json",

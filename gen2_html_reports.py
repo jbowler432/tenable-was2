@@ -658,6 +658,13 @@ def print_summary2(data,fout):
 	#fout.write('<tr><td width=200px>Total Vulnerabilities</td><td width=50px align=center>'+str(vuln_count)+'</td>\n')
 	fout.write('</table>')
 	fout.write('</div>')
+	vuln_summary={
+		'critical':str(crit_count),
+		'high':str(high_count),
+		'medium':str(med_count),
+		'low':str(low_count),
+		}
+	return vuln_summary
 
 
 
@@ -736,7 +743,7 @@ def print_report2(x):
 	fout.write('<div class=page_heading>\n')
 	fout.write('<h1>WAS Report</h1>')
 	fout.write('<table width=100%></table></div>')
-	print_summary2(data,fout)
+	vuln_summary=print_summary2(data,fout)
 	fout.write('<div class=bar_chart_fl>\n')
 	fout.write('<table width=560px><tr><td><h2>Scan Job Information</h2></td></table>\n')
 	fout.write('<table class=table1 width=560px>')
@@ -776,16 +783,18 @@ def print_report2(x):
 	plug_outputs(data,fout,"info")
 	fout.write('</html>')
 	fout.close()
+	return vuln_summary
 
 
 #
 # Main
 #
-results_dir="../results/"
-reports_dir="../reports/"
+results_dir="results/"
+reports_dir="reports/"
 #reports_dir="/mnt/downloads/"
 f=open(results_dir+"scan_list.json","r")
 scan_lst=json.load(f)
+vuln_summaries=[]
 for x in scan_lst:
 	#print line
 	scanID=x["scanID"]
@@ -796,5 +805,9 @@ for x in scan_lst:
 	# older method off original APIs
 	#print_report(x)
 	# newer method off report API
-	print_report2(x)
+	vulns=print_report2(x)
+	vulns.update({'finalised':finalised,'uri':uri})
+	vuln_summaries.append(vulns)
 f.close()
+for x in vuln_summaries:
+	print(x)
